@@ -9,10 +9,48 @@ from textblob import TextBlob
 import re 
 from collections import OrderedDict
 import pandas as pd
+import gzip
+import subprocess
 
-input_file = './test_author_list.txt'
+input_file = '/home/dayen/test_author_list.txt'
 #input_file = '../TAP/Result/author/cmtNum500.2Y.5devper'
 output_file = 'author_data.csv'
+
+class ProjectNames:
+        def __init__(self):
+                self.p_dict = {}
+                self.print_process = False
+        def getCanonicalName(self, project_names):
+                mapped_pn = list(set(project_names).intersection(set(self.p_dict.keys())))
+                if len(mapped_pn) > 0:
+                        return self.p_dict[mapped_pn[0]]
+                # for pn in project_names:
+                #       if pn in self.p_dict.keys():
+                #               return self.p_dict[pn]
+                found_canon_name = False;
+                fork_name = ""
+                for pn in project_names:
+                        user_process = subprocess.Popen("zgrep '" + pn + "' /da0_data/basemaps/gz/pP.map", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                        canon_fork_pair, err = user_process.communicate()
+                        if self.print_process:
+                                print(canon_fork_pair)
+                        if canon_fork_pair != "":
+                                canon_name = canon_fork_pair.split(";")[0]
+                                if canon_name == "abb":
+                                        if len(canon_fork_pair.split(";")) == 2:
+                                                continue
+                                        else:
+                                                canon_name = canon_fork_pair.split(";")[1]
+                                found_canon_name = True;
+                                fork_name = pn
+                                break
+                if found_canon_name:
+                        self.p_dict[fork_name] = canon_name
+                        return canon_name
+                else:
+                        print("Could not find canonical name for this project! Use as is.")
+                        self.p_dict[project_names[0]] = project_names[0]
+                        return project_names[0]
 
 #from https://github.com/ckeditor/ckeditor5-design/wiki/Git-commit-message-convention
 types_by_convention = set(['Feature', 'Fix', 'Other', 'Code style', 'Docs', 'Internal', 'Tests', 'Revert'])
@@ -47,15 +85,19 @@ def get_author_data(author_name):
 			timestamp = Commit_info(commit).time_author[0]
 			type = determine_commit_type(message)
 			sentiment = get_message_sentiment(message)
-			commit_message_dictionary[timestamp] = [author_name, timestamp, commit, len(message), len(full_message), type, sentiment, cleaned_message]
+                        project = pn.getCanonicalName(Commit(commit).project_names)
+                        forks = len(Commit(commit).project_names)
+			commit_message_dictionary[timestamp] = [author_name, timestamp, commit, len(message), len(full_message), type, sentiment, cleaned_message, project, forks]
 	ordered_commit_message_dictionary = OrderedDict(sorted(commit_message_dictionary.items(), key=lambda t: t[0]))
 	df = pd.DataFrame.from_dict(ordered_commit_message_dictionary, orient='index')
 	out_file = open(output_file, 'a')
 	df.to_csv(out_file, mode='a', header=False, index=False)
 	out_file.close()
 
+pn = ProjectNames()
 #setup headers in output file and remove old data
-df = pd.DataFrame(columns=['author_name', 'timestamp', 'sha','message_len', 'full_message_len', 'type','sentiment', 'message'])
+df = pd.DataFrame(columns=['author_name', 'timestamp', 'sha','message_len', 'full_message_len', 'type','sentiment', 'message', 'project', 'forks'])
+# df = pd.DataFrame(columns=['author_name', 'timestamp', 'sha','message_len', 'full_message_len', 'type','sentiment', 'message'])
 out_file = open(output_file, 'w')
 df.to_csv(out_file, index=False)
 out_file.close()
