@@ -17,3 +17,4 @@ for line in sys.stdin:
     end_date = int(datetime.utcfromtimestamp(last).strftime('%Y%m%d'))
     if (end_date-begin_date > filter["lenght_developemnt"]*10000):
         print(line.strip()[1:-1])
+        sys.stdout.flush()
