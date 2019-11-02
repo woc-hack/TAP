@@ -1,4 +1,4 @@
-
+import csv
 from oscar import Author,Commit,Commit_info
 
 
@@ -25,16 +25,24 @@ def author2language(one):
 					if file_extention in extention[la]:
 						language = la
 						break
-			print((timestamp,sha,language))	
-	                results.append((timestamp,sha,language))
+			#print((one,timestamp,sha,language))	
+	                results.append({'Author':one,'TimeStamp':timestamp,'SHA':sha,'Language':language})
 
 		
 
 	return results
 
 if __name__ == '__main__':
-	print(author2language('Warner Losh <imp@FreeBSD.org>'))
-
+	author_file = open('../TAP/Result/author/cmtNum500.2Y.5devper')
+	authors = author_file.readlines()
+	headers = ['Author','TimeStamp','SHA','Language']
+	with open('language.csv','w') as f:
+    		f_csv = csv.DictWriter(f, headers)
+    		f_csv.writeheader()
+		for author in authors:
+			results = author2language(author.strip())
+			f_csv.writerows(results)
+	
 
 
 
