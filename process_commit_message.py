@@ -6,6 +6,7 @@
 from oscar import *
 from textblob import TextBlob 
 import re 
+from collections import OrderedDict
 
 #update to loop through list of authors after filters complete
 author_name = 'First Last <email>'
@@ -13,6 +14,7 @@ author_name = 'First Last <email>'
 #from https://github.com/ckeditor/ckeditor5-design/wiki/Git-commit-message-convention
 types_by_convention = set(['Feature', 'Fix', 'Other', 'Code style', 'Docs', 'Internal', 'Tests', 'Revert'])
 
+commit_message_dictionary = {} 
 for commit in Author(author_name).commit_shas:
 	message = Commit(commit).message
 	if len(message) > 0:
@@ -20,7 +22,9 @@ for commit in Author(author_name).commit_shas:
 		timestamp = Commit_info(commit).time_author[0]
 		type = determine_commit_type(message)
 		sentiment = get_message_sentiment(message)
-		print(timestamp, commit, len(message), len(full_message), type, sentiment)
+		commit_message_dictionary[timestamp] = [commit, len(message), len(full_message), type, sentiment]
+
+ordered_commit_message_dictionary = OrderedDict(sorted(commit_message_dictionary.items(), key=lambda t: t[0]))
 
 #assumes commit messages follow convention described in 
 #https://github.com/ckeditor/ckeditor5-design/wiki/Git-commit-message-convention
