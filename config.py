@@ -5,6 +5,6 @@
 filter = {
   "lenght_developemnt": 2,
   "number_developers": 5,
-  "commit_threshhold": 100,
+  "commit_threshhold": 500,
   "length_project": 5,
 }

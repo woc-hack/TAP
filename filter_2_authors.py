@@ -7,9 +7,9 @@ from config import filter
 for line in sys.stdin:
     num_prjs = 0
     author_set = set()
-    for prj in Author(line.strip()[1:-1]).project_names:
+    for prj in Author(line.rstrip()).project_names:
         author_set.update(set(Project(prj).author_names))
         if len(author_set) > filter["number_developers"]:
-            print(line.strip()[1:-1])
+            print(line.rstrip())
             sys.stdout.flush()
             break

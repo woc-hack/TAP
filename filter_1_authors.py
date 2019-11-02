@@ -13,8 +13,9 @@ for line in sys.stdin:
             first = int(record[0])
         if int(record[0]) > last:
             last = int(record[0])
-    begin_date = int(datetime.utcfromtimestamp(first).strftime('%Y%m%d'))
-    end_date = int(datetime.utcfromtimestamp(last).strftime('%Y%m%d'))
-    if (end_date-begin_date > filter["lenght_developemnt"]*10000):
-        print(line.strip()[1:-1])
-        sys.stdout.flush()
+        begin_date = int(datetime.utcfromtimestamp(first).strftime('%Y%m%d'))
+        end_date = int(datetime.utcfromtimestamp(last).strftime('%Y%m%d'))
+        if (end_date-begin_date > filter["lenght_developemnt"]*10000):
+            print(line.strip()[1:-1])
+            sys.stdout.flush()
+            break

@@ -7,7 +7,7 @@ from config import filter
 for line in sys.stdin:
     num_prjs = 0
     author_set = set()
-    for prj in Author(line.strip()[1:-1]).project_names:
+    for prj in Author(line.rstrip()).project_names:
         first, last = [32503736037, 0]
         for cmt in Project(prj).commit_shas:
             record = Commit_info(cmt).time_author
@@ -15,9 +15,11 @@ for line in sys.stdin:
                 first = int(record[0])
             if int(record[0]) > last:
                 last = int(record[0])
-        begin_date = int(datetime.utcfromtimestamp(first).strftime('%Y%m%d'))
-        end_date = int(datetime.utcfromtimestamp(last).strftime('%Y%m%d'))
+            begin_date = int(datetime.utcfromtimestamp(first).strftime('%Y%m%d'))
+            end_date = int(datetime.utcfromtimestamp(last).strftime('%Y%m%d'))
+            if (end_date-begin_date > filter["length_project"]*10000):
+                print(line.rstrip())
+                sys.stdout.flush()
+                break
         if (end_date-begin_date > filter["length_project"]*10000):
-            print(line.strip()[1:-1])
-            sys.stdout.flush()
             break
