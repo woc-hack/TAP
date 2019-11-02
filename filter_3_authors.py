@@ -10,7 +10,11 @@ for line in sys.stdin:
     for prj in Author(line.rstrip()).project_names:
         first, last = [32503736037, 0]
         for cmt in Project(prj).commit_shas:
-            record = Commit_info(cmt).time_author
+            try:
+                record = Commit_info(cmt).time_author
+            except TypeError as e:
+                sys.stderr.write(str(e)+'\n')
+                continue
             if int(record[0]) < first:
                 first = int(record[0])
             if int(record[0]) > last:
