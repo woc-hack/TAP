@@ -12,8 +12,8 @@ import pandas as pd
 import gzip
 import subprocess
 
-input_file = '/home/dayen/test_author_list.txt'
-#input_file = '../TAP/Result/author/cmtNum500.2Y.5devper'
+#input_file = 'test_author_list.txt'
+input_file = '../TAP/Result/author/cmtNum500.2Y.5devper'
 output_file = 'author_data.csv'
 
 class ProjectNames:
@@ -97,14 +97,16 @@ def get_author_data(author_name):
 pn = ProjectNames()
 #setup headers in output file and remove old data
 df = pd.DataFrame(columns=['author_name', 'timestamp', 'sha','message_len', 'full_message_len', 'type','sentiment', 'message', 'project', 'forks'])
-# df = pd.DataFrame(columns=['author_name', 'timestamp', 'sha','message_len', 'full_message_len', 'type','sentiment', 'message'])
 out_file = open(output_file, 'w')
 df.to_csv(out_file, index=False)
 out_file.close()
 
 in_file = open(input_file)
-line = in_file.readline()
-while line:
+# lines = in_file.readline()
+lines = [line.rstrip('\n') for line in in_file]
+# while line:
+for line in lines[:2]:
+        print(line)
 	author_name = line.rstrip()
 	get_author_data(author_name)
 	line = in_file.readline()
