@@ -6,7 +6,7 @@ from config import filter
 
 for line in sys.stdin:
     first, last = [32503736037, 0]
-    for cmt in Author(line.strip()[1:-1]).commit_shas:
+    for cmt in Author(line.rstrip()).commit_shas:
         #in tuple, ("unixtime", "<email>")
         record = Commit_info(cmt).time_author
         if int(record[0]) < first:
@@ -16,6 +16,6 @@ for line in sys.stdin:
         begin_date = int(datetime.utcfromtimestamp(first).strftime('%Y%m%d'))
         end_date = int(datetime.utcfromtimestamp(last).strftime('%Y%m%d'))
         if (end_date-begin_date > filter["lenght_developemnt"]*10000):
-            print(line.strip()[1:-1])
+            print(line.rstrip())
             sys.stdout.flush()
             break
